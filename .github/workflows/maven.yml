@@ -25,3 +25,53 @@ jobs:
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
       uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
+
+
+  deploy:
+    name: Deploy to EC2
+    needs: build
+    if: github.ref == 'refs/heads/main' && success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Copy artifact to EC2
+        run: |
+          scp target/*.jar \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app.jar
+
+      - name: Restart application on EC2
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            # Create systemd service if missing
+            if ! systemctl list-units --full -all | grep -q my-java-app.service; then
+              sudo tee /etc/systemd/system/my-java-app.service > /dev/null << 'SERVICE'
+              
+              
+[Unit]
+Description=My Java App
+After=network.target
+
+[Service]
+User=deploy
+ExecStart=/usr/bin/java -jar /home/deploy/app.jar
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+SERVICE
+              sudo systemctl daemon-reload
+              sudo systemctl enable my-java-app
+            fi
+
+            # Always restart (or start) the service
+            sudo systemctl restart my-java-app
+          EOF
