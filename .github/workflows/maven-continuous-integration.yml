@@ -9,6 +9,9 @@ jobs:
   build:
     name: Build & Test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 21 ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
