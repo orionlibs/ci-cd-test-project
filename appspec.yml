@@ -1,0 +1,13 @@
+
+version: 0.0
+os: linux
+
+files:
+  - source: my-app.jar            # this is the JAR your CI built
+    destination: /home/ubuntu/app
+
+hooks:
+  ApplicationStart:
+    - location: start.sh   # e.g. `nohup java -jar /home/ubuntu/app/my-app.jar &`
+      timeout: 300
+      runas: ubuntu
