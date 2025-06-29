@@ -6,8 +6,8 @@ import java.util.Map;
 
 @RestController
 public class HelloController {
-    @GetMapping("/hello3")
+    @GetMapping("/hello4")
     public Map<String, String> hello() {
-        return Map.of("greeting3", "Hello, World!");
+        return Map.of("greeting4", "Hello, World!");
     }
 }
