@@ -54,24 +54,3 @@ jobs:
             # Create systemd service if missing
             if ! systemctl list-units --full -all | grep -q my-java-app.service; then
               sudo tee /etc/systemd/system/my-java-app.service > /dev/null << 'SERVICE'
-              
-              
-[Unit]
-Description=My Java App
-After=network.target
-
-[Service]
-User=deploy
-ExecStart=/usr/bin/java -jar /home/deploy/app.jar
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-SERVICE
-              sudo systemctl daemon-reload
-              sudo systemctl enable my-java-app
-            fi
-
-            # Always restart (or start) the service
-            sudo systemctl restart my-java-app
-          EOF

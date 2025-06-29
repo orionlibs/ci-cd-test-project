@@ -1,13 +1,30 @@
-
 version: 0.0
 os: linux
 
 files:
-  - source: my-app.jar            # this is the JAR your CI built
-    destination: /home/ubuntu/app
+  - source: /
+    destination: /home/ubuntu/server
+
+permissions:
+  - object: /
+    pattern: "**"
+    owner: ubuntu
+    group: ubuntu
 
 hooks:
-  ApplicationStart:
-    - location: start.sh   # e.g. `nohup java -jar /home/ubuntu/app/my-app.jar &`
+  BeforeInstall:
+    - location: server_clear.sh
       timeout: 300
+      runas: ubuntu
+  AfterInstall:
+    - location: fix_privileges.sh
+      timeout: 300
+      runas: ubuntu
+  ApplicationStart:
+    - location: server_start.sh
+      timeout: 20
+      runas: ubuntu
+  ApplicationStop:
+    - location: server_stop.sh
+      timeout: 20
       runas: ubuntu
