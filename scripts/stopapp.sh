@@ -7,5 +7,3 @@ if [[ -n  $isExistApp ]]; then
 else
   echo "The application is not running."
 fi
-cd /home/ubuntu/server
-mvn clean package

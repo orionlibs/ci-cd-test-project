@@ -13,7 +13,11 @@ permissions:
 
 hooks:
   BeforeInstall:
-    - location: scripts/server_clear.sh
+    - location: scripts/stopapp.sh
+      timeout: 300
+      runas: ubuntu
+  AfterInstall:
+    - location: scripts/build.sh
       timeout: 300
       runas: ubuntu
   ApplicationStart:
