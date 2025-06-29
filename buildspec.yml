@@ -6,10 +6,10 @@ phases:
       java: corretto21
   build:
     commands:
-      - mvn clean install
+      - mvn clean package
   post_build:
     commands:
-      - echo Build completed
+      - echo "Build completed"
 artifacts:
   files:
     - target/*.jar
